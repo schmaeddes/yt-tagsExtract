@@ -1,4 +1,4 @@
-import enums.FieldNames;
+import enums.Properties;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,9 +26,9 @@ public class FormatTags {
             in.close();
 
             List<String> tags = extractTags(page);
-            tags.add(extractTag(page, FieldNames.DEVELOPER));
-            tags.add(extractTag(page, FieldNames.PUBLISHER));
-            tags.add(extractTitle(page));
+            tags.add(extractProperty(page, Properties.DEVELOPER));
+            tags.add(extractProperty(page, Properties.PUBLISHER));
+            tags.add(extractProperty(page, Properties.TITLE));
 
             System.out.println(tags);
 
@@ -38,24 +38,17 @@ public class FormatTags {
 
     }
 
-    private static String extractTitle(List<String> webpage) {
-        String title = "";
-
-        for(int i = 0; i < webpage.size(); i++) {
-            if (webpage.get(i).contains(FieldNames.TITLE.value)) {
-                title = Arrays.stream(webpage.get(i).split("[><]")).toList().get(4).substring(1);
-                break;
-            }
-        }
-        return title;
-    }
-
-    private static String extractTag(List<String> webpage, FieldNames tag) {
+    private static String extractProperty(List<String> webpage, Properties tag) {
         String extractedTag = "";
 
         for(int i = 0; i < webpage.size(); i++) {
             if (webpage.get(i).contains(tag.value)) {
-                extractedTag = Arrays.stream(webpage.get(i + 2).split("[><]")).toList().get(2);
+
+                if (tag.equals(Properties.TITLE)) {
+                    extractedTag = Arrays.stream(webpage.get(i).split("[><]")).toList().get(4).substring(1);
+                } else {
+                    extractedTag = Arrays.stream(webpage.get(i + 2).split("[><]")).toList().get(2);
+                }
                 break;
             }
         }
@@ -66,22 +59,16 @@ public class FormatTags {
         List<String> tags = new ArrayList<>();
         for(String line: webpage) {
             if (line.contains("[{\"tagid\"")) {
-                tags = getTags(line);
+                List<String> list = Arrays.stream(line.replace("\"", "").split(",")).toList();
+
+                for(String entry: list) {
+                    if(entry.contains("name")) {
+                        tags.add(entry.split(":")[1]);
+                    }
+                }
             }
         }
         return tags;
     }
 
-    private static List<String> getTags(String string) {
-        List<String> list = Arrays.stream(string.replace("\"", "").split(",")).toList();
-        List<String> tags = new ArrayList<>();
-
-        for(String line: list) {
-            if(line.contains("name")) {
-                tags.add(line.split(":")[1]);
-            }
-        }
-
-        return tags;
-    }
 }

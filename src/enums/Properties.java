@@ -1,13 +1,13 @@
 package enums;
 
-public enum FieldNames {
+public enum Properties {
     TITLE("Title:"),
     PUBLISHER("Publisher:"),
-    DEVELOPER("Title:");
+    DEVELOPER("Developer:");
 
     public String value;
 
-    FieldNames(String value) {
+    Properties(String value) {
         this.value = value;
     }
 }
